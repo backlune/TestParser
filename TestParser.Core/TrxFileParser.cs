@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using BassUtils;
+using System.Xml;
 
 namespace TestParser.Core
 {
@@ -24,7 +25,13 @@ namespace TestParser.Core
             try
             {
                 XNamespace ns = @"http://microsoft.com/schemas/VisualStudio/TeamTest/2010";
-                var doc = XDocument.Load(filename);
+                XDocument doc = null;
+                XmlReaderSettings xmlReaderSettings = new XmlReaderSettings { CheckCharacters = false };
+                using (XmlReader xmlReader = XmlReader.Create(filename, xmlReaderSettings))
+                {
+                    xmlReader.MoveToContent();
+                    doc = XDocument.Load(xmlReader);
+                }
 
                 var testDefinitions = (from unitTest in doc.Descendants(ns + "UnitTest")
                                        select new
